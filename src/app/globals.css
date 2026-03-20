@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  /* Bumpr Orange — THE hero color */
+  --color-bumpr-orange: #FFA314;
+  --color-bumpr-orange-light: #FFB84D;
+  --color-bumpr-orange-dark: #E68A00;
+
+  /* Cream — default backgrounds */
+  --color-cream: #FFF8F0;
+  --color-cream-dark: #F5EDE0;
+  --color-cream-light: #FFFCF7;
+
+  /* Volcanic — contrast & text */
+  --color-volcanic: #1A1A1A;
+  --color-volcanic-brown: #2A2318;
+  --color-volcanic-light: #3D3529;
+
+  /* Teal — secondary accent only */
+  --color-teal: #1A5C5E;
+  --color-teal-dark: #134445;
+  --color-teal-light: #2A7C7E;
+
+  /* Warm grays */
+  --color-warm-gray: #B8B0A4;
+  --color-warm-gray-light: #D4CFC6;
+  --color-warm-gray-dark: #8A8279;
+
+  /* Legacy aliases */
+  --color-amber: #FFA314;
+  --color-amber-light: #FFB84D;
+  --color-amber-dark: #E68A00;
+
+  /* Fonts */
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}

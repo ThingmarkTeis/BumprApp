@@ -1,0 +1,32 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/expire-bookings",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/cron/auto-checkin",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/process-checkouts",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/enforce-bump-deadlines",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/ical-sync",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-rates",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/cron/ical-stale-check",
+      "schedule": "0 * * * *"
+    }
+  ]
+}
