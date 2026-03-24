@@ -40,7 +40,15 @@ export async function updateSession(request: NextRequest) {
     publicPaths.some((path) => request.nextUrl.pathname === path) ||
     publicPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
-  if (!user && !isPublicPath) {
+  // Public API routes (webhooks, cron, browsing, iCal, setup, debug)
+  const publicApiPrefixes = ["/api/webhooks/", "/api/cron/", "/api/villas/viewport", "/api/ical/", "/api/setup", "/api/debug"];
+  const isPublicApi = publicApiPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
+
+  if (!user && !isPublicPath && !isPublicApi) {
+    // API routes get 401 JSON; pages get redirected to login
+    if (request.nextUrl.pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
