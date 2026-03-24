@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
     publicPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
   // Public API routes (webhooks, cron, browsing, iCal, setup, debug)
-  const publicApiPrefixes = ["/api/webhooks/", "/api/cron/", "/api/villas/viewport", "/api/ical/", "/api/setup", "/api/debug"];
+  const publicApiPrefixes = ["/api/webhooks/", "/api/cron/", "/api/villas/viewport", "/api/ical/", "/api/setup", "/api/debug", "/api/messages", "/api/conversations"];
   const isPublicApi = publicApiPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
   if (!user && !isPublicPath && !isPublicApi) {

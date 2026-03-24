@@ -395,6 +395,28 @@ All tables use `uuid` primary keys (auto-generated). All timestamps are `timesta
 | source | text DEFAULT 'xendit' | |
 | fetched_at | timestamptz NOT NULL | |
 
+### 8.12 conversations
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| booking_id | uuid FK NOT NULL UNIQUE | One conversation per booking |
+| villa_id | uuid FK NOT NULL | |
+| renter_id | uuid FK NOT NULL | |
+| owner_id | uuid FK NOT NULL | |
+| created_at | timestamptz | |
+
+### 8.13 messages
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | uuid PK | |
+| conversation_id | uuid FK NOT NULL | |
+| sender_id | uuid FK NOT NULL | |
+| body | text NOT NULL | Text only in v1 |
+| read_at | timestamptz | NULL = unread |
+| created_at | timestamptz | |
+
 ---
 
 ## 9. INDEXES
@@ -551,6 +573,7 @@ Subscribe to Supabase Realtime changes on:
 | /booking/[id] | Detail: status, dates, protection timer (live countdown), payment. |
 | /booking/[id]/bumped | Bump screen: deadline countdown, available alternatives pre-filtered. |
 | /bookings | List: active, upcoming, past. |
+| /messages | Conversations list with previews and unread counts. |
 | /profile | Edit name, phone, preferred currency. |
 
 ### 15.4 Owner Pages
@@ -560,6 +583,7 @@ Subscribe to Supabase Realtime changes on:
 | /dashboard | Home: villas, active bookings, recent bumps, earnings summary. |
 | /villa/[id]/manage | View calendar, active bookings. (Editing is admin-only in v1.) |
 | /villa/[id]/bump | Trigger bump: select booking, confirm platform, confirmation dialog. |
+| /messages | Conversations list with previews and unread counts. |
 | /earnings | Payout history, per-booking breakdown. |
 
 ### 15.5 Admin Pages

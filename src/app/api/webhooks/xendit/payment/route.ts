@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyXenditWebhook } from "@/lib/integrations/xendit/verify-webhook";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createConversation } from "@/lib/services/messages";
 import type { Database } from "@/lib/supabase/types";
 
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
@@ -67,6 +68,14 @@ export async function POST(request: Request) {
           .single<Villa>();
 
         if (villa) {
+          // Auto-create messaging conversation
+          await createConversation({
+            bookingId: booking.id,
+            villaId: booking.villa_id,
+            renterId: booking.renter_id,
+            ownerId: villa.owner_id,
+          });
+
           // Create confirmation notifications
           await supabase.from("notifications").insert([
             {
