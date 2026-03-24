@@ -34,10 +34,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Public routes that don't require auth
-  const publicPaths = ["/", "/login", "/signup", "/renter", "/owner", "/auth/callback", "/auth/redirect"];
-  const isPublicPath = publicPaths.some(
-    (path) => request.nextUrl.pathname === path
-  );
+  const publicPaths = ["/", "/login", "/signup", "/renter", "/owner", "/auth/callback", "/auth/redirect", "/browse"];
+  const publicPrefixes = ["/villa/"];
+  const isPublicPath =
+    publicPaths.some((path) => request.nextUrl.pathname === path) ||
+    publicPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone();
