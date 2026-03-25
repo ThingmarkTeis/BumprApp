@@ -132,20 +132,19 @@ export async function POST(request: Request) {
       // RPC may not exist yet — skip availability check gracefully
     }
 
-    // Check max 3 active bookings per renter
-    try {
-      const { data: activeCount } = await admin.rpc("count_active_bookings", {
-        renter_uuid: user.id,
-      });
+    // Check max 2 active bookings per renter
+    const { data: activeBookings } = await admin
+      .from("bookings")
+      .select("id")
+      .eq("renter_id", user.id)
+      .in("status", ["confirmed", "active"])
+      .limit(3);
 
-      if ((activeCount as number) >= 3) {
-        return NextResponse.json(
-          { error: "Maximum 3 active bookings allowed." },
-          { status: 409 }
-        );
-      }
-    } catch {
-      // RPC may not exist — skip limit check gracefully
+    if (activeBookings && activeBookings.length >= 2) {
+      return NextResponse.json(
+        { error: "max_bookings_reached", message: "You can have a maximum of 2 active bookings." },
+        { status: 400 }
+      );
     }
 
     // Get renter profile for currency

@@ -38,3 +38,9 @@ export const extendBookingSchema = z.object({
 });
 
 export type ExtendBookingInput = z.infer<typeof extendBookingSchema>;
+
+export const updateCheckOutSchema = z.object({
+  new_check_out_date: dateString,
+});
+
+export type UpdateCheckOutInput = z.infer<typeof updateCheckOutSchema>;
