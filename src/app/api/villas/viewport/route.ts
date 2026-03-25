@@ -52,7 +52,8 @@ export async function GET(request: Request) {
 
   // Apply filters
   if (area && area !== "all") {
-    villas = villas.filter((v) => v.area === area);
+    const areaLower = area.toLowerCase();
+    villas = villas.filter((v) => v.area.toLowerCase() === areaLower);
   }
   if (minBedrooms) {
     villas = villas.filter((v) => v.bedrooms >= parseInt(minBedrooms));

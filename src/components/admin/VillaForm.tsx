@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { formatIdr } from "@/lib/utils/currency";
+import { AMENITIES, AMENITY_KEYS } from "@/lib/amenities";
 
 interface Owner {
   id: string;
@@ -28,6 +29,7 @@ interface VillaData {
   lng?: number;
   lat?: number;
   status?: string;
+  amenities?: string[];
 }
 
 interface Photo {
@@ -73,6 +75,7 @@ export default function VillaForm({
     ical_url: "",
     lng: 115.17,
     lat: -8.65,
+    amenities: [],
     ...initial,
   });
 
@@ -227,6 +230,40 @@ export default function VillaForm({
               <input type="number" min={1} value={form.max_guests} onChange={(e) => update("max_guests", parseInt(e.target.value))} className="w-full rounded-lg border border-volcanic/20 px-4 py-2.5 text-volcanic" />
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Amenities */}
+      <section>
+        <h2 className="font-serif text-lg font-semibold text-volcanic mb-4">Amenities</h2>
+        <div className="flex flex-wrap gap-2">
+          {AMENITY_KEYS.map((key) => {
+            const a = AMENITIES[key];
+            const selected = form.amenities?.includes(key) ?? false;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  const current = form.amenities ?? [];
+                  update(
+                    "amenities",
+                    selected
+                      ? current.filter((v) => v !== key)
+                      : [...current, key]
+                  );
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium border transition-colors ${
+                  selected
+                    ? "bg-teal text-cream border-teal"
+                    : "bg-white text-volcanic/70 border-volcanic/20 hover:border-teal/40"
+                }`}
+              >
+                {a.icon}
+                {a.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 

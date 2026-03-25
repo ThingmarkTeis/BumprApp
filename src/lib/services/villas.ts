@@ -32,7 +32,8 @@ export async function getVillasByViewport(params: {
 
   // Client-side filters for fields not in the RPC
   if (params.area) {
-    villas = villas.filter((v) => v.area === params.area);
+    const areaLower = params.area.toLowerCase();
+    villas = villas.filter((v) => v.area.toLowerCase() === areaLower);
   }
   if (params.minBedrooms) {
     villas = villas.filter((v) => v.bedrooms >= params.minBedrooms!);

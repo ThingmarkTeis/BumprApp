@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import PhotoGallery from "@/components/renter/PhotoGallery";
 import VillaDetailClient from "@/components/renter/VillaDetailClient";
+import AmenityList from "@/components/renter/AmenityList";
 import { formatIdr } from "@/lib/utils/currency";
 import type { Database } from "@/lib/supabase/types";
 
@@ -130,16 +131,7 @@ export default async function VillaDetailPage({
               <h2 className="font-serif text-lg font-semibold text-volcanic mb-3">
                 Amenities
               </h2>
-              <div className="flex flex-wrap gap-2">
-                {amenities.map((a) => (
-                  <span
-                    key={a}
-                    className="rounded-full bg-cream-dark px-3 py-1 text-sm text-warm-gray-dark"
-                  >
-                    {a}
-                  </span>
-                ))}
-              </div>
+              <AmenityList amenities={amenities} />
             </div>
           )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import MapView, { type MapVilla } from "./MapView";
 import VillaPreviewCard, { type VillaPreview } from "./VillaPreviewCard";
@@ -38,6 +38,7 @@ export default function BrowseClient({
   const [villas, setVillas] = useState<ApiVilla[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const boundsRef = useRef<{ west: number; south: number; east: number; north: number } | null>(null);
 
   // Filters from URL
   const checkIn = searchParams.get("checkIn") ?? "";
@@ -49,6 +50,7 @@ export default function BrowseClient({
 
   const fetchVillas = useCallback(
     async (bounds: { west: number; south: number; east: number; north: number }) => {
+      boundsRef.current = bounds;
       setLoading(true);
       const params = new URLSearchParams({
         west: String(bounds.west),
@@ -73,6 +75,13 @@ export default function BrowseClient({
     },
     [checkIn, checkOut, area, bedrooms]
   );
+
+  // Refetch when filters change (fetchVillas identity changes)
+  useEffect(() => {
+    if (boundsRef.current) {
+      fetchVillas(boundsRef.current);
+    }
+  }, [fetchVillas]);
 
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -224,6 +233,7 @@ export default function BrowseClient({
           token={mapboxToken}
           villas={getMapVillas()}
           selectedId={selectedId}
+          area={area}
           onViewportChange={fetchVillas}
           onSelectVilla={setSelectedId}
         />

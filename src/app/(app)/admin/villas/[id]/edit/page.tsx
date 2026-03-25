@@ -92,6 +92,7 @@ export default async function EditVillaPage({
           owner_id: villa.owner_id,
           ical_url: villa.ical_url ?? "",
           status: villa.status,
+          amenities: (villa.amenities as string[]) ?? [],
         }}
         photos={(photos ?? []).map((p) => ({
           id: p.id,
