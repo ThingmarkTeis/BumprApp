@@ -44,7 +44,10 @@ export async function updateSession(request: NextRequest) {
   const publicApiPrefixes = ["/api/webhooks/", "/api/cron/", "/api/villas/viewport", "/api/villas/search", "/api/ical/", "/api/setup", "/api/seed/", "/api/debug", "/api/messages", "/api/conversations"];
   const isPublicApi = publicApiPrefixes.some((prefix) => request.nextUrl.pathname.startsWith(prefix));
 
-  if (!user && !isPublicPath && !isPublicApi) {
+  // If a Bearer token is present, let the route handler verify it (mobile app auth)
+  const hasBearerToken = request.headers.get("authorization")?.startsWith("Bearer ");
+
+  if (!user && !isPublicPath && !isPublicApi && !hasBearerToken) {
     // API routes get 401 JSON; pages get redirected to login
     if (request.nextUrl.pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
