@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     const checkIn = data.check_in_date ?? data.checkIn!;
     const checkOut = data.check_out_date ?? data.checkOut!;
     const guestCount = data.num_guests ?? data.guests ?? null;
-    const arrivalTime = data.arrival_time ?? null;
+    const arrivalTime = data.arrival_time ?? data.arrivalTime ?? null;
     const arrivalToday = data.arrivalToday ?? null;
     const houseRulesAccepted = data.house_rules_accepted ?? null;
     const paymentMethod = data.payment_method ?? "cash_on_arrival";
@@ -71,9 +71,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Normalize arrival time to HH:MM for comparison and storage
+    let arrivalTime24 = arrivalTime;
+    if (arrivalTime) {
+      // Convert "2:30 PM" → "14:30" if needed
+      const match = arrivalTime.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (match) {
+        let h = parseInt(match[1]);
+        const m = match[2];
+        const period = match[3].toUpperCase();
+        if (period === "PM" && h !== 12) h += 12;
+        if (period === "AM" && h === 12) h = 0;
+        arrivalTime24 = `${String(h).padStart(2, "0")}:${m}`;
+      }
+    }
+
     // Validate arrival time against villa's earliest check-in
-    if (arrivalTime && villa.earliest_check_in) {
-      if (arrivalTime < villa.earliest_check_in) {
+    if (arrivalTime24 && villa.earliest_check_in) {
+      if (arrivalTime24 < villa.earliest_check_in) {
         return NextResponse.json(
           { error: `Earliest check-in is ${villa.earliest_check_in}.` },
           { status: 400 }
@@ -168,7 +183,7 @@ export async function POST(request: Request) {
         nights,
         guests: guestCount,
         arrival_today: arrivalToday,
-        arrival_time: arrivalTime,
+        arrival_time: arrivalTime24,
         house_rules_accepted: houseRulesAccepted,
         payment_method: paymentMethod,
         nightly_rate_idr: villa.standby_rate_idr,
