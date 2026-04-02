@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -48,7 +47,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-cream flex items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <h1 className="font-serif text-3xl font-bold text-volcanic text-center mb-8">
-          Welcome back
+          Bumpr Admin
         </h1>
 
         <form onSubmit={handleEmailLogin} className="space-y-4">
@@ -133,10 +132,7 @@ export default function LoginPage() {
         </button>
 
         <p className="text-center text-sm text-warm-gray-dark mt-8">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-bumpr-orange font-medium hover:underline">
-            Sign up
-          </Link>
+          Admin access only
         </p>
       </div>
     </div>

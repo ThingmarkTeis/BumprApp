@@ -14,7 +14,7 @@ export default function Error({
           Something went wrong
         </h1>
         <p className="text-volcanic/60 mb-6">
-          Don&apos;t worry, your bookings are safe. Try again or head back home.
+          Something unexpected happened. Try again or head back to the dashboard.
         </p>
         <div className="flex gap-3 justify-center">
           <button
@@ -24,10 +24,10 @@ export default function Error({
             Try again
           </button>
           <a
-            href="/"
+            href="/admin"
             className="rounded-lg bg-teal px-5 py-2.5 text-sm font-semibold text-cream hover:bg-teal-dark"
           >
-            Go home
+            Dashboard
           </a>
         </div>
       </div>

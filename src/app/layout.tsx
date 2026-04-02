@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import ServiceWorkerRegister from "@/components/providers/ServiceWorkerRegister";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -29,28 +28,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Bumpr — Standby Villa Rentals in Bali",
-  description:
-    "Live the villa life in Bali for 25–30% of normal rates. Standby bookings with the bump adventure.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Bumpr",
-  },
-  openGraph: {
-    title: "Bumpr — Standby Villa Rentals in Bali",
-    description:
-      "Live the villa life for less. Accept the bump, embrace the adventure.",
-    url: "https://bumpr.rent",
-    siteName: "Bumpr",
-    locale: "en_US",
-    type: "website",
-  },
-  icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
-  },
+  title: "Bumpr Admin",
+  description: "Bumpr internal admin dashboard",
 };
 
 export default function RootLayout({
@@ -64,7 +43,6 @@ export default function RootLayout({
         className={`${fraunces.variable} ${outfit.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
         {children}
-        <ServiceWorkerRegister />
       </body>
     </html>
   );
