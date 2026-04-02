@@ -3,6 +3,7 @@ export type BookingStatus =
   | "approved"
   | "confirmed"
   | "active"
+  | "bumping"
   | "bumped"
   | "completed"
   | "cancelled"
@@ -280,6 +281,11 @@ export interface Database {
           completed_at: string | null;
           cancelled_at: string | null;
           cancellation_reason: string | null;
+          auto_bump_scheduled_at: string | null;
+          auto_bump_triggered_by: string | null;
+          bumped_at: string | null;
+          switched_to_booking_id: string | null;
+          switched_from_booking_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -310,6 +316,11 @@ export interface Database {
           completed_at?: string | null;
           cancelled_at?: string | null;
           cancellation_reason?: string | null;
+          auto_bump_scheduled_at?: string | null;
+          auto_bump_triggered_by?: string | null;
+          bumped_at?: string | null;
+          switched_to_booking_id?: string | null;
+          switched_from_booking_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -340,6 +351,11 @@ export interface Database {
           completed_at?: string | null;
           cancelled_at?: string | null;
           cancellation_reason?: string | null;
+          auto_bump_scheduled_at?: string | null;
+          auto_bump_triggered_by?: string | null;
+          bumped_at?: string | null;
+          switched_to_booking_id?: string | null;
+          switched_from_booking_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -806,6 +822,42 @@ export interface Database {
             columns: ["sender_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      saved_villas: {
+        Row: {
+          id: string;
+          user_id: string;
+          villa_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          villa_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          villa_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_villas_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "saved_villas_villa_id_fkey";
+            columns: ["villa_id"];
+            isOneToOne: false;
+            referencedRelation: "villas";
             referencedColumns: ["id"];
           },
         ];

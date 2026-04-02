@@ -20,6 +20,7 @@ export interface VillaSearchResult {
   rating: number | null;
   review_count: number;
   is_available: boolean;
+  is_saved: boolean;
   distance_km: number | null;
   owner: {
     id: string;

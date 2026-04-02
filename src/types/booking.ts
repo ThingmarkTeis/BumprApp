@@ -83,9 +83,57 @@ export interface BookingDetail {
     bumped_at: string | null;
     must_leave_by: string | null;
   } | null;
+  auto_bump: AutoBumpInfo | null;
   created_at: string;
 }
 
 export interface ExtendBookingRequest {
   new_check_out_date: string;
+}
+
+export interface SwitchVillaRequest {
+  new_villa_id: string;
+  switch_from_booking_id: string;
+  auto_bump_delay_minutes: number;
+  check_out_date: string;
+  arrival_time: string;
+  num_guests: number;
+  house_rules_accepted: boolean;
+}
+
+export interface SwitchVillaResponse {
+  new_booking: BookingDetail;
+  switching_from: {
+    booking_id: string;
+    villa_title: string;
+    auto_bump_fires_at: string;
+    must_leave_by: string;
+  };
+}
+
+export interface AutoBumpInfo {
+  is_scheduled: boolean;
+  fires_at: string | null;
+  must_leave_by: string | null;
+  triggered_by: "switch" | "owner" | null;
+}
+
+export interface BookingSummary {
+  id: string;
+  villa_title: string;
+  villa_image: string;
+  area: string;
+  check_in_date: string;
+  check_out_date: string;
+  status: string;
+  standby_rate: number;
+  auto_bump_fires_at: string | null;
+  bumped_at: string | null;
+  must_leave_by: string | null;
+}
+
+export interface BookingListResponse {
+  active: BookingSummary[];
+  bumping: BookingSummary[];
+  past: BookingSummary[];
 }

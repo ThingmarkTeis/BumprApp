@@ -3,8 +3,9 @@ import type { BookingStatus, BumpStatus } from "@/lib/supabase/types";
 const VALID_BOOKING_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
   requested: ["approved", "expired", "cancelled"],
   approved: ["confirmed", "cancelled"],
-  confirmed: ["active", "pre_checkin_cancelled", "cancelled"],
-  active: ["bumped", "completed"],
+  confirmed: ["active", "bumping", "pre_checkin_cancelled", "cancelled"],
+  active: ["bumping", "bumped", "completed"],
+  bumping: ["bumped"],
   bumped: ["completed"],
   completed: [],
   cancelled: [],

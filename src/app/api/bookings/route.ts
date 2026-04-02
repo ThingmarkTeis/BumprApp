@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getApiUser } from "@/lib/auth/get-api-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/types";
-import type { BookingResponse } from "@/types/booking";
+import type { BookingResponse, BookingListResponse, BookingSummary } from "@/types/booking";
 import { createBookingSchema } from "@/lib/validations/booking";
 import { calculateNights } from "@/lib/utils/dates";
 
@@ -10,6 +10,111 @@ type Villa = Database["public"]["Tables"]["villas"]["Row"];
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 
 const SERVICE_FEE_RATE = 0.15;
+const BUMP_NOTICE_HOURS = 18;
+
+// GET /api/bookings — List all bookings for the authenticated renter, grouped by category
+export async function GET(request: Request) {
+  try {
+    const user = await getApiUser(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+
+    // Fetch all bookings for this renter
+    const { data: bookings, error } = await admin
+      .from("bookings")
+      .select("*")
+      .eq("renter_id", user.id)
+      .order("created_at", { ascending: false })
+      .returns<Booking[]>();
+
+    if (error) throw error;
+
+    // Get villa details for all bookings
+    const villaIds = [...new Set((bookings ?? []).map((b) => b.villa_id))];
+    const villaMap = new Map<string, { title: string; area: string }>();
+    const photoMap = new Map<string, string>(); // villa_id -> first photo URL
+
+    if (villaIds.length > 0) {
+      const { data: villas } = await admin
+        .from("villas")
+        .select("id, title, area")
+        .in("id", villaIds);
+
+      for (const v of villas ?? []) {
+        villaMap.set(v.id, { title: v.title, area: v.area });
+      }
+
+      const { data: photos } = await admin
+        .from("villa_photos")
+        .select("villa_id, url")
+        .in("villa_id", villaIds)
+        .order("sort_order", { ascending: true });
+
+      for (const p of photos ?? []) {
+        if (!photoMap.has(p.villa_id)) {
+          photoMap.set(p.villa_id, p.url);
+        }
+      }
+    }
+
+    const toSummary = (b: Booking): BookingSummary => {
+      const villa = villaMap.get(b.villa_id);
+      let mustLeaveBy: string | null = null;
+
+      if (b.status === "bumping" && b.bumped_at) {
+        mustLeaveBy = new Date(
+          new Date(b.bumped_at).getTime() + BUMP_NOTICE_HOURS * 60 * 60 * 1000
+        ).toISOString();
+      } else if (b.auto_bump_scheduled_at) {
+        mustLeaveBy = new Date(
+          new Date(b.auto_bump_scheduled_at).getTime() + BUMP_NOTICE_HOURS * 60 * 60 * 1000
+        ).toISOString();
+      }
+
+      return {
+        id: b.id,
+        villa_title: villa?.title ?? "Unknown Villa",
+        villa_image: photoMap.get(b.villa_id) ?? "",
+        area: villa?.area ?? "",
+        check_in_date: b.check_in,
+        check_out_date: b.check_out,
+        status: b.status,
+        standby_rate: b.nightly_rate_idr,
+        auto_bump_fires_at: b.auto_bump_scheduled_at,
+        bumped_at: b.bumped_at,
+        must_leave_by: mustLeaveBy,
+      };
+    };
+
+    const active: BookingSummary[] = [];
+    const bumping: BookingSummary[] = [];
+    const past: BookingSummary[] = [];
+
+    for (const b of bookings ?? []) {
+      const summary = toSummary(b);
+      if (b.status === "confirmed" || b.status === "active") {
+        active.push(summary);
+      } else if (b.status === "bumping") {
+        bumping.push(summary);
+      } else if (["bumped", "completed", "cancelled", "expired", "pre_checkin_cancelled"].includes(b.status)) {
+        past.push(summary);
+      }
+      // requested/approved are not shown in these categories
+    }
+
+    const response: BookingListResponse = { active, bumping, past };
+    return NextResponse.json(response);
+  } catch (err) {
+    console.error("List bookings error:", err);
+    return NextResponse.json(
+      { error: "Failed to fetch bookings." },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: Request) {
   try {

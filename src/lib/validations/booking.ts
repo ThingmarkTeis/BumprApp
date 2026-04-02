@@ -44,3 +44,46 @@ export const updateCheckOutSchema = z.object({
 });
 
 export type UpdateCheckOutInput = z.infer<typeof updateCheckOutSchema>;
+
+export const switchVillaSchema = z.object({
+  // Accept multiple naming conventions (snake_case, camelCase)
+  new_villa_id: z.string().uuid().optional(),
+  villaId: z.string().uuid().optional(),
+  toVillaId: z.string().uuid().optional(),
+  switch_from_booking_id: z.string().uuid().optional(),
+  switchFromBookingId: z.string().uuid().optional(),
+  bookingId: z.string().uuid().optional(),
+  auto_bump_delay_minutes: z.number().int().min(30).max(1440).optional(),
+  autoBumpDelayMinutes: z.number().int().min(30).max(1440).optional(),
+  check_out_date: dateString.optional(),
+  checkOutDate: dateString.optional(),
+  arrival_time: z.string().min(1).optional(),
+  arrivalTime: z.string().min(1).optional(),
+  num_guests: z.number().int().min(1).optional(),
+  guests: z.number().int().min(1).optional(),
+  house_rules_accepted: z.boolean().optional(),
+  houseRulesAccepted: z.boolean().optional(),
+}).refine(
+  (d) => !!(d.new_villa_id || d.villaId || d.toVillaId),
+  { message: "new_villa_id is required", path: ["new_villa_id"] }
+).refine(
+  (d) => !!(d.switch_from_booking_id || d.switchFromBookingId || d.bookingId),
+  { message: "switch_from_booking_id is required", path: ["switch_from_booking_id"] }
+).refine(
+  (d) => (d.auto_bump_delay_minutes ?? d.autoBumpDelayMinutes) !== undefined,
+  { message: "auto_bump_delay_minutes is required (30–1440)", path: ["auto_bump_delay_minutes"] }
+).refine(
+  (d) => !!(d.check_out_date || d.checkOutDate),
+  { message: "check_out_date is required", path: ["check_out_date"] }
+).refine(
+  (d) => !!(d.arrival_time || d.arrivalTime),
+  { message: "arrival_time is required", path: ["arrival_time"] }
+).refine(
+  (d) => (d.num_guests ?? d.guests) !== undefined,
+  { message: "num_guests is required", path: ["num_guests"] }
+).refine(
+  (d) => (d.house_rules_accepted ?? d.houseRulesAccepted) === true,
+  { message: "You must accept the house rules", path: ["house_rules_accepted"] }
+);
+
+export type SwitchVillaInput = z.infer<typeof switchVillaSchema>;

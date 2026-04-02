@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getApiUser } from "@/lib/auth/get-api-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { searchParamsSchema } from "@/lib/validations/search";
 import type {
@@ -165,6 +166,22 @@ export async function GET(request: Request) {
 
     const total = rows.length > 0 ? Number(rows[0].total_count) : 0;
 
+    // Check which villas are saved by the current user (if authenticated)
+    const savedVillaIds = new Set<string>();
+    const user = await getApiUser(request).catch(() => null);
+    if (user && rows.length > 0) {
+      const villaIds = rows.map((r) => r.villa_id);
+      const { data: savedRecords } = await supabase
+        .from("saved_villas")
+        .select("villa_id")
+        .eq("user_id", user.id)
+        .in("villa_id", villaIds);
+
+      for (const r of savedRecords ?? []) {
+        savedVillaIds.add(r.villa_id);
+      }
+    }
+
     const villas: VillaSearchResult[] = rows.map((row) => ({
       id: row.villa_id,
       title: row.villa_title,
@@ -184,6 +201,7 @@ export async function GET(request: Request) {
       rating: null, // Reviews system is out of v1 scope
       review_count: 0,
       is_available: true, // Unavailable villas are already filtered out
+      is_saved: savedVillaIds.has(row.villa_id),
       distance_km:
         row.distance_meters != null
           ? Math.round((row.distance_meters / 1000) * 100) / 100

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getApiUser } from "@/lib/auth/get-api-user";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { calculateProtectionStatus } from "@/lib/booking-utils";
-import type { BookingDetail } from "@/types/booking";
+import type { BookingDetail, AutoBumpInfo } from "@/types/booking";
 
 const BUMP_NOTICE_HOURS = 18;
 
@@ -109,6 +109,31 @@ export async function GET(
         ? { is_bumped: true, bumped_at: null, must_leave_by: null }
         : null;
 
+    // Auto-bump info
+    let autoBump: AutoBumpInfo | null = null;
+    if (booking.auto_bump_scheduled_at || booking.status === "bumping") {
+      const firesAt = booking.auto_bump_scheduled_at;
+      const bumpedAt = booking.bumped_at;
+      let mustLeaveByStr: string | null = null;
+
+      if (booking.status === "bumping" && bumpedAt) {
+        mustLeaveByStr = new Date(
+          new Date(bumpedAt).getTime() + BUMP_NOTICE_HOURS * 60 * 60 * 1000
+        ).toISOString();
+      } else if (firesAt) {
+        mustLeaveByStr = new Date(
+          new Date(firesAt).getTime() + BUMP_NOTICE_HOURS * 60 * 60 * 1000
+        ).toISOString();
+      }
+
+      autoBump = {
+        is_scheduled: !!firesAt && booking.status !== "bumping",
+        fires_at: firesAt,
+        must_leave_by: mustLeaveByStr,
+        triggered_by: (booking.auto_bump_triggered_by as "switch" | "owner") ?? null,
+      };
+    }
+
     const response: BookingDetail = {
       id: booking.id,
       villa: {
@@ -145,6 +170,7 @@ export async function GET(
       status: booking.status,
       protection,
       bump,
+      auto_bump: autoBump,
       created_at: booking.created_at,
     };
 
