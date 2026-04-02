@@ -5,6 +5,9 @@ import Pagination from "@/components/admin/Pagination";
 import AdminBookingActions from "@/components/admin/AdminBookingActions";
 import type { BookingStatus } from "@/lib/supabase/types";
 import { formatIdr } from "@/lib/utils/currency";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 const PER_PAGE = 20;
 
@@ -112,7 +115,9 @@ export default async function AdminBookingsPage({
               status: string;
             }) => (
               <tr key={b.id} className="hover:bg-cream-dark/50">
-                <td className="px-4 py-3 font-mono text-xs text-warm-gray-dark">{b.id.slice(0, 8)}</td>
+                <td className="px-4 py-3 font-mono text-xs">
+                  <Link href={`/admin/bookings/${b.id}`} className="text-bumpr-orange hover:underline">{b.id.slice(0, 8)}</Link>
+                </td>
                 <td className="px-4 py-3 text-volcanic">{villaMap.get(b.villa_id) ?? "—"}</td>
                 <td className="px-4 py-3 text-volcanic/70">{renterMap.get(b.renter_id) ?? "—"}</td>
                 <td className="px-4 py-3 font-mono text-xs">{b.check_in}</td>

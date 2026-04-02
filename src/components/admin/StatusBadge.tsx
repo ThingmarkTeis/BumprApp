@@ -1,43 +1,53 @@
 const COLORS: Record<string, string> = {
-  // Active states — teal
+  // Active states
   confirmed: "bg-teal text-white",
   active: "bg-teal text-white",
 
-  // Action needed — bumpr orange
+  // Action needed
   approved: "bg-bumpr-orange text-white",
   bumped: "bg-bumpr-orange text-white",
+  bumping: "bg-bumpr-orange text-white",
   processing: "bg-bumpr-orange text-white",
 
-  // Neutral / waiting — warm gray
+  // Neutral / waiting
   requested: "bg-cream-dark text-volcanic",
   pending: "bg-cream-dark text-volcanic",
   draft: "bg-cream-dark text-warm-gray-dark",
   paused: "bg-cream-dark text-warm-gray-dark",
 
-  // Completed — teal muted
+  // Completed
   completed: "bg-teal/20 text-teal",
   resolved: "bg-teal/20 text-teal",
   ok: "bg-teal/20 text-teal",
+  sent: "bg-teal/20 text-teal",
+  delivered: "bg-teal/20 text-teal",
+  read: "bg-teal/20 text-teal",
 
-  // Error / failed — red
+  // Error / failed
   failed: "bg-red-500 text-white",
   error: "bg-red-500 text-white",
   admin_review: "bg-red-500 text-white",
 
-  // Terminal — warm gray muted
+  // Terminal
   cancelled: "bg-warm-gray-light text-warm-gray-dark",
   expired: "bg-warm-gray-light text-warm-gray-dark",
   pre_checkin_cancelled: "bg-warm-gray-light text-warm-gray-dark",
   delisted: "bg-warm-gray-light text-warm-gray-dark",
 
-  // Types
+  // Payment types
   charge: "bg-teal/20 text-teal",
   refund: "bg-bumpr-orange/20 text-bumpr-orange-dark",
+  payout: "bg-teal/10 text-teal-dark",
 
   // Roles
   admin: "bg-bumpr-orange text-white",
   owner: "bg-teal text-white",
   renter: "bg-cream-dark text-volcanic",
+
+  // Notification channels
+  whatsapp: "bg-green-100 text-green-700",
+  in_app: "bg-teal/10 text-teal",
+  email: "bg-blue-100 text-blue-700",
 
   // Boolean
   yes: "bg-teal/20 text-teal",

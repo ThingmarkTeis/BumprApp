@@ -33,15 +33,9 @@ export default async function AdminVillasPage({
   if (icalFilter) query = query.eq("ical_sync_status", icalFilter as "ok" | "pending" | "error");
   if (search) query = query.ilike("title", `%${search}%`);
 
-  const { data: villas, count, error: villasError } = await query
+  const { data: villas, count } = await query
     .order("created_at", { ascending: false })
     .range((page - 1) * PER_PAGE, page * PER_PAGE - 1);
-
-  console.log("=== ADMIN VILLAS DEBUG ===");
-  console.log("Villas count:", count);
-  console.log("Villas data:", JSON.stringify(villas?.map((v: { id: string; title: string; status: string }) => ({ id: v.id, title: v.title, status: v.status }))));
-  console.log("Error:", villasError);
-  console.log("Filters:", { statusFilter, areaFilter, icalFilter, search, page });
 
   const totalPages = Math.ceil((count ?? 0) / PER_PAGE);
 
@@ -71,11 +65,6 @@ export default async function AdminVillasPage({
 
   return (
     <div className="px-6 py-8">
-      {/* DEBUG — remove after fixing */}
-      <div className="mb-4 p-3 bg-yellow-100 rounded text-xs font-mono">
-        Villas found: {(villas ?? []).length} | Count: {count ?? "null"} | Error: {villasError?.message ?? "none"}
-      </div>
-
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-3xl font-bold text-volcanic">Villas</h1>
         <Link

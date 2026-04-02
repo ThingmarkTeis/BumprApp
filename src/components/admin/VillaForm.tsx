@@ -24,6 +24,8 @@ interface VillaData {
   bump_notice_hours?: number;
   earliest_check_in?: string;
   check_in_by?: string;
+  check_out_time?: string;
+  house_rules?: string;
   owner_id?: string;
   ical_url?: string;
   lng?: number;
@@ -71,6 +73,8 @@ export default function VillaForm({
     bump_notice_hours: 18,
     earliest_check_in: "14:00",
     check_in_by: "20:00",
+    check_out_time: "11:00",
+    house_rules: "",
     owner_id: owners[0]?.id ?? "",
     ical_url: "",
     lng: 115.17,
@@ -289,8 +293,24 @@ export default function VillaForm({
               <label className="block text-sm font-medium text-volcanic mb-1">Latest Check-in</label>
               <input type="time" value={form.check_in_by} onChange={(e) => update("check_in_by", e.target.value)} className="w-full rounded-lg border border-volcanic/20 px-4 py-2.5 text-volcanic" />
             </div>
+            <div>
+              <label className="block text-sm font-medium text-volcanic mb-1">Check-out Time</label>
+              <input type="time" value={form.check_out_time} onChange={(e) => update("check_out_time", e.target.value)} className="w-full rounded-lg border border-volcanic/20 px-4 py-2.5 text-volcanic" />
+            </div>
           </div>
         </div>
+      </section>
+
+      {/* House Rules */}
+      <section>
+        <h2 className="font-serif text-lg font-semibold text-volcanic mb-4">House Rules</h2>
+        <textarea
+          value={form.house_rules}
+          onChange={(e) => update("house_rules", e.target.value)}
+          rows={4}
+          placeholder="Enter house rules for guests..."
+          className="w-full rounded-lg border border-volcanic/20 px-4 py-2.5 text-volcanic placeholder:text-volcanic/40 resize-none"
+        />
       </section>
 
       {/* Owner */}

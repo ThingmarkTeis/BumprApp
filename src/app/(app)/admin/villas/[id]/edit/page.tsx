@@ -89,6 +89,8 @@ export default async function EditVillaPage({
           bump_notice_hours: villa.bump_notice_hours,
           earliest_check_in: villa.earliest_check_in ?? "14:00",
           check_in_by: villa.check_in_by ?? "20:00",
+          check_out_time: villa.check_out_time ?? "11:00",
+          house_rules: villa.house_rules ?? "",
           owner_id: villa.owner_id,
           ical_url: villa.ical_url ?? "",
           status: villa.status,

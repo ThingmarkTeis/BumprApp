@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface FilterOption {
   label: string;
@@ -26,6 +26,8 @@ export default function FilterBar({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [searchValue, setSearchValue] = useState(searchParams.get(searchKey ?? "") ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const updateParam = useCallback(
     (key: string, value: string) => {
@@ -35,11 +37,29 @@ export default function FilterBar({
       } else {
         params.delete(key);
       }
-      params.delete("page"); // Reset page on filter change
+      params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams]
   );
+
+  const hasActiveFilters = filters.some((f) => searchParams.has(f.key)) || (searchKey && searchParams.has(searchKey));
+
+  function clearAll() {
+    router.push(pathname);
+    setSearchValue("");
+  }
+
+  useEffect(() => {
+    if (!searchKey) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      updateParam(searchKey, searchValue);
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchValue, searchKey, updateParam]);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -62,10 +82,18 @@ export default function FilterBar({
         <input
           type="text"
           placeholder={searchPlaceholder ?? "Search..."}
-          defaultValue={searchParams.get(searchKey) ?? ""}
-          onChange={(e) => updateParam(searchKey, e.target.value)}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
           className="rounded-lg border border-volcanic/20 bg-white px-3 py-2 text-sm text-volcanic placeholder:text-volcanic/40 w-48"
         />
+      )}
+      {hasActiveFilters && (
+        <button
+          onClick={clearAll}
+          className="rounded-lg px-3 py-2 text-xs font-medium text-warm-gray-dark hover:text-volcanic hover:bg-cream-dark transition-colors"
+        >
+          Clear filters
+        </button>
       )}
     </div>
   );
