@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import StatusBadge from "@/components/admin/StatusBadge";
 import AdminUserActions from "@/components/admin/AdminUserActions";
+import AdminProfileEditor from "@/components/admin/AdminProfileEditor";
 import { formatIdr } from "@/lib/utils/currency";
 import Link from "next/link";
 
@@ -88,6 +89,28 @@ export default async function UserDetailPage({
             </dl>
           </div>
         )}
+      </div>
+
+      {/* Edit Profile */}
+      <div className="mb-8">
+        <AdminProfileEditor
+          userId={id}
+          profile={{
+            full_name: (p.full_name as string) || "",
+            email: (p.email as string) || "",
+            phone: (p.phone as string) || "",
+            preferred_currency: (p.preferred_currency as string) || "USD",
+            language: (p.language as string) || "en",
+          }}
+          ownerProfile={isOwner ? {
+            business_name: (ownerProfile as { business_name: string | null }).business_name ?? "",
+            bank_name: (ownerProfile as { bank_name: string | null }).bank_name ?? "",
+            bank_account_number: (ownerProfile as { bank_account_number: string | null }).bank_account_number ?? "",
+            bank_account_holder: (ownerProfile as { bank_account_holder: string | null }).bank_account_holder ?? "",
+            id_type: (ownerProfile as { id_type: string | null }).id_type ?? "",
+            id_number: (ownerProfile as { id_number: string | null }).id_number ?? "",
+          } : null}
+        />
       </div>
 
       {/* Actions */}
