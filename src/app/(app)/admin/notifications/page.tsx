@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import StatusBadge from "@/components/admin/StatusBadge";
 import FilterBar from "@/components/admin/FilterBar";
 import Pagination from "@/components/admin/Pagination";
+import SendNotificationForm from "@/components/admin/SendNotificationForm";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -37,9 +38,24 @@ export default async function AdminNotificationsPage({
     : { data: [] };
   const userMap = new Map((users ?? []).map((u: { id: string; full_name: string; email: string }) => [u.id, u.full_name || u.email]));
 
+  // All users for send form
+  const { data: allUsers } = await supabase
+    .from("profiles")
+    .select("id, full_name, email")
+    .order("full_name");
+
+  const sendFormUsers = (allUsers ?? []).map((u: { id: string; full_name: string; email: string }) => ({
+    id: u.id,
+    name: u.full_name || "",
+    email: u.email,
+  }));
+
   return (
     <div className="px-6 py-8">
-      <h1 className="font-serif text-3xl font-bold text-volcanic mb-6">Notifications</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-serif text-3xl font-bold text-volcanic">Notifications</h1>
+        <SendNotificationForm users={sendFormUsers} />
+      </div>
 
       <div className="mb-4">
         <FilterBar
