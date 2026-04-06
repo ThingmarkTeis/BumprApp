@@ -16,6 +16,11 @@ export type RenterResponse = "rebooking" | "accepted_deadline" | "left_early";
 
 export type VillaStatus = "draft" | "active" | "paused" | "delisted";
 
+export interface VillaExtra {
+  name: string;
+  price_idr: number;
+}
+
 export type IcalSyncStatus = "ok" | "pending" | "error";
 
 export type PaymentType = "charge" | "refund" | "payout";
@@ -150,10 +155,14 @@ export interface Database {
           earliest_check_in: string | null;
           check_out_time: string | null;
           house_rules: string | null;
+          license_nib: string | null;
+          license_nib_document_url: string | null;
+          extras: VillaExtra[];
           amenities: string[];
           status: VillaStatus;
           ical_url: string | null;
           ical_last_synced_at: string | null;
+          service_fee_percentage: number;
           ical_sync_status: IcalSyncStatus;
           created_at: string;
           updated_at: string;
@@ -175,10 +184,14 @@ export interface Database {
           earliest_check_in?: string | null;
           check_out_time?: string | null;
           house_rules?: string | null;
+          license_nib?: string | null;
+          license_nib_document_url?: string | null;
+          extras?: VillaExtra[];
           amenities?: string[];
           status?: VillaStatus;
           ical_url?: string | null;
           ical_last_synced_at?: string | null;
+          service_fee_percentage?: number;
           ical_sync_status?: IcalSyncStatus;
           created_at?: string;
           updated_at?: string;
@@ -200,10 +213,14 @@ export interface Database {
           earliest_check_in?: string | null;
           check_out_time?: string | null;
           house_rules?: string | null;
+          license_nib?: string | null;
+          license_nib_document_url?: string | null;
+          extras?: VillaExtra[];
           amenities?: string[];
           status?: VillaStatus;
           ical_url?: string | null;
           ical_last_synced_at?: string | null;
+          service_fee_percentage?: number;
           ical_sync_status?: IcalSyncStatus;
           created_at?: string;
           updated_at?: string;
@@ -861,6 +878,42 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      app_logs: {
+        Row: {
+          id: string;
+          level: string;
+          message: string;
+          screen: string | null;
+          action: string | null;
+          context: Record<string, unknown>;
+          user_id: string | null;
+          device_info: Record<string, unknown>;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          level?: string;
+          message: string;
+          screen?: string | null;
+          action?: string | null;
+          context?: Record<string, unknown>;
+          user_id?: string | null;
+          device_info?: Record<string, unknown>;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          level?: string;
+          message?: string;
+          screen?: string | null;
+          action?: string | null;
+          context?: Record<string, unknown>;
+          user_id?: string | null;
+          device_info?: Record<string, unknown>;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;
