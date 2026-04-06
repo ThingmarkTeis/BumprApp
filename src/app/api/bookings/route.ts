@@ -219,8 +219,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check external availability blocks only (iCal / manual owner blocks).
-    // Standby bookings do NOT block new bookings — that's the core Bumpr model.
+    // Check for overlapping confirmed/active bookings by OTHER renters
+    const { data: occupiedConflicts } = await admin
+      .from("bookings")
+      .select("id")
+      .eq("villa_id", villaId)
+      .neq("renter_id", user.id)
+      .in("status", ["confirmed", "active"])
+      .lt("check_in", checkOut)
+      .gt("check_out", checkIn)
+      .limit(1);
+
+    if (occupiedConflicts && occupiedConflicts.length > 0) {
+      return NextResponse.json(
+        { error: "Villa is not available for the selected dates." },
+        { status: 409 }
+      );
+    }
+
+    // Check external availability blocks (iCal / manual owner blocks)
     const { data: externalBlocks } = await admin
       .from("external_availability")
       .select("id")
