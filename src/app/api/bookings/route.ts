@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getApiUser } from "@/lib/auth/get-api-user";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { logger } from "@/lib/logger";
 import type { Database } from "@/lib/supabase/types";
 import type { BookingResponse, BookingListResponse, BookingSummary } from "@/types/booking";
 import { createBookingSchema } from "@/lib/validations/booking";
@@ -9,7 +10,6 @@ import { calculateNights } from "@/lib/utils/dates";
 type Villa = Database["public"]["Tables"]["villas"]["Row"];
 type Booking = Database["public"]["Tables"]["bookings"]["Row"];
 
-const SERVICE_FEE_RATE = 0.15;
 const BUMP_NOTICE_HOURS = 18;
 
 // GET /api/bookings — List all bookings for the authenticated renter, grouped by category
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
     const response: BookingListResponse = { active, bumping, past };
     return NextResponse.json(response);
   } catch (err) {
-    console.error("List bookings error:", err);
+    logger.error("List bookings error", { action: "GET /api/bookings", context: { error: err instanceof Error ? err.message : String(err) } });
     return NextResponse.json(
       { error: "Failed to fetch bookings." },
       { status: 500 }
@@ -219,22 +219,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check villa availability (iCal conflicts / confirmed full-price bookings)
-    try {
-      const { data: conflicts } = await admin.rpc("check_villa_availability", {
-        villa_uuid: villaId,
-        desired_check_in: checkIn,
-        desired_check_out: checkOut,
-      });
+    // Check external availability blocks only (iCal / manual owner blocks).
+    // Standby bookings do NOT block new bookings — that's the core Bumpr model.
+    const { data: externalBlocks } = await admin
+      .from("external_availability")
+      .select("id")
+      .eq("villa_id", villaId)
+      .lt("blocked_start", checkOut)
+      .gt("blocked_end", checkIn)
+      .limit(1);
 
-      if (conflicts && (conflicts as unknown[]).length > 0) {
-        return NextResponse.json(
-          { error: "Villa is not available for the selected dates." },
-          { status: 409 }
-        );
-      }
-    } catch {
-      // RPC may not exist yet — skip availability check gracefully
+    if (externalBlocks && externalBlocks.length > 0) {
+      return NextResponse.json(
+        { error: "Villa is not available for the selected dates." },
+        { status: 409 }
+      );
     }
 
     // Check max 2 active bookings per renter
@@ -270,7 +269,8 @@ export async function POST(request: Request) {
     // Calculate pricing
     const nights = calculateNights(checkIn, checkOut);
     const totalAmountIdr = villa.standby_rate_idr * nights;
-    const serviceFeeIdr = Math.round(totalAmountIdr * SERVICE_FEE_RATE);
+    const serviceFeeRate = (villa.service_fee_percentage ?? 15) / 100;
+    const serviceFeeIdr = Math.round(totalAmountIdr * serviceFeeRate);
     const totalChargedIdr = totalAmountIdr + serviceFeeIdr;
 
     // For cash_on_arrival, go directly to "confirmed". Otherwise use "requested" for online payment flow.
@@ -360,7 +360,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(response, { status: 201 });
   } catch (err) {
-    console.error("Create booking error:", err);
+    logger.error("Create booking error", { action: "POST /api/bookings", context: { error: err instanceof Error ? err.message : String(err) } });
     return NextResponse.json(
       { error: "Failed to create booking." },
       { status: 500 }
